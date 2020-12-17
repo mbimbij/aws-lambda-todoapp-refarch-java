@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS lambda for auto-formation purpose.
+Resources:
+  hellojava:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://acg-devops-joseph/0ad507e21e0fb085bf431cfa63288bb8
+      Handler: example.HelloHandler
+      Runtime: java11
+      Description: Java function
+      FunctionName: hello-java
+      MemorySize: 128
+      Timeout: 10
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - AWSLambdaReadOnlyAccess
+      - AWSXrayWriteOnlyAccess
+      - AWSLambdaVPCAccessExecutionRole
+      Tracing: Active

@@ -1,15 +1,16 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: AWS lambda for auto-formation purpose.
+Description: Reproducing the aws lambda webapp reference architecture - a todo app
+  - but with java.
 Resources:
-  hellojava:
+  getAllTodos:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://acg-devops-joseph/0ad507e21e0fb085bf431cfa63288bb8
-      Handler: example.HelloHandler
+      CodeUri: s3://acg-devops-joseph/23f6105cbd881d3f338b4f7bb61e4ae6
+      Handler: todo.getall.GetAllTodosHandler
       Runtime: java11
       Description: Java function
-      FunctionName: hello-java
+      FunctionName: todo-getall
       MemorySize: 128
       Timeout: 10
       Policies:

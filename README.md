@@ -43,3 +43,4 @@ on met deja en place quelques use case de la todo-app, que l'on vérifie "à la 
 tests:
 
 - retourner une liste de tâches en dur
+- retourner une liste de tâches en dur, mais récupérée depuis DynamoDB cette fois-ci

@@ -26,6 +26,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>io.symphonia</groupId>
+            <artifactId>lambda-logging</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+        <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-lambda-java-core</artifactId>
             <version>${aws-lambda-java-core.version}</version>
@@ -51,6 +56,12 @@
             <artifactId>aws-lambda-java-log4j2</artifactId>
             <version>${aws-lambda-java-log4j2.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-dynamodb</artifactId>
+            <version>1.11.920</version>
+        </dependency>
+
     </dependencies>
 
     <build>

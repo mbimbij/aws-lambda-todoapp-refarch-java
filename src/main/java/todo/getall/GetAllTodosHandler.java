@@ -14,11 +14,11 @@ public class GetAllTodosHandler implements RequestHandler<GetAllTodosRequest, Ge
   private TodoItemRepository todoItemRepository;
 
   public GetAllTodosHandler() {
-    this.todoItemRepository = TodoItemRepository.create();
+    this.todoItemRepository = TodoItemRepository.getInstance();
   }
 
   @Override
-  public GetAllTodosResponse handleRequest(GetAllTodosRequest helloRequest, Context context) {
+  public GetAllTodosResponse handleRequest(GetAllTodosRequest getAllRequest, Context context) {
     List<TodoDto> todos = todoItemRepository.findAll().stream()
         .map(entity -> new TodoDto(entity.getId(), entity.getName(), entity.getState()))
         .collect(Collectors.toList());

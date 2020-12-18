@@ -1,4 +1,4 @@
-package todo.create;
+package todo.delete;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -9,17 +9,18 @@ import todo.repository.TodoItemEntity;
 import todo.repository.TodoItemRepository;
 
 @Slf4j
-public class CreateTodoHandler implements RequestHandler<CreateTodoRequest, TodoDto> {
+public class DeleteTodoHandler implements RequestHandler<DeleteTodoRequest, TodoDto> {
   private TodoItemRepository todoItemRepository;
 
-  public CreateTodoHandler() {
+  public DeleteTodoHandler() {
     this.todoItemRepository = TodoItemRepository.getInstance();
   }
 
   @Override
-  public TodoDto handleRequest(CreateTodoRequest createRequest, Context context) {
-    TodoItemEntity entity = new TodoItemEntity(createRequest.name, TodoState.TODO.name());
-    todoItemRepository.save(entity);
+  public TodoDto handleRequest(DeleteTodoRequest deleteRequest, Context context) {
+    log.info("delete item {}", deleteRequest.toString());
+    TodoItemEntity entity = TodoItemEntity.createInstanceForDeleteRequest(deleteRequest.id);
+    todoItemRepository.delete(entity);
     return new TodoDto(entity.getId(), entity.getName(), entity.getState());
   }
 }

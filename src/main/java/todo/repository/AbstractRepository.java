@@ -42,6 +42,10 @@ public abstract class AbstractRepository<T, ID extends Serializable> {
     return mapper.scan(entityClass, scanExpression);
   }
 
+  public void delete(T t){
+    mapper.delete(t);
+  }
+
   public void setMapper(DynamoDBMapper dynamoDBMapper) {
     this.mapper = dynamoDBMapper;
   }

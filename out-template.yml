@@ -18,7 +18,7 @@ Resources:
   getAllTodos:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://acg-devops-joseph/b7405d57381718a8d93269893c096848
+      CodeUri: s3://acg-devops-joseph/cff2ec9b53643943d4674e7af49ea159
       Handler: todo.getall.GetAllTodosHandler
       Runtime: java11
       Description: Java function
@@ -34,11 +34,30 @@ Resources:
   createTodo:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://acg-devops-joseph/b7405d57381718a8d93269893c096848
+      CodeUri: s3://acg-devops-joseph/cff2ec9b53643943d4674e7af49ea159
       Handler: todo.create.CreateTodoHandler
       Runtime: java11
       Description: Java function
       FunctionName: todo-create
+      MemorySize: 512
+      Timeout: 10
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - AWSLambdaReadOnlyAccess
+      - AWSXrayWriteOnlyAccess
+      - AWSLambdaVPCAccessExecutionRole
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: TodoTable
+      Tracing: Active
+  deleteTodo:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://acg-devops-joseph/cff2ec9b53643943d4674e7af49ea159
+      Handler: todo.delete.DeleteTodoHandler
+      Runtime: java11
+      Description: Java function
+      FunctionName: todo-delete
       MemorySize: 512
       Timeout: 10
       Policies:

@@ -44,4 +44,5 @@ tests:
 
 - retourner une liste de tâches en dur
 - retourner une liste de tâches en dur, mais récupérée depuis DynamoDB cette fois-ci
-- créer un item 
+- créer un item
+- supprimer un item (par id)

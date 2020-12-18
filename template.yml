@@ -2,8 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: Reproducing the aws lambda webapp reference architecture - a todo app - but with java.
 
-
-
 Resources:
   TodoTable:
     Type: AWS::Serverless::SimpleTable
@@ -44,6 +42,26 @@ Resources:
       Runtime: java11
       Description: Java function
       FunctionName: todo-create
+      MemorySize: 512
+      Timeout: 10
+      # Function's execution role
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambdaReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TodoTable
+      Tracing: Active
+
+  deleteTodo:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: target/webapp-refarch-todo-java-0.0.1-SNAPSHOT.jar
+      Handler: todo.delete.DeleteTodoHandler
+      Runtime: java11
+      Description: Java function
+      FunctionName: todo-delete
       MemorySize: 512
       Timeout: 10
       # Function's execution role

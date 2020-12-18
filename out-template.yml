@@ -18,7 +18,7 @@ Resources:
   getAllTodos:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://acg-devops-joseph/d947fd1152878649cb33372ee6e1fa6d
+      CodeUri: s3://acg-devops-joseph/5f6a0a8db246fd16dd15cb7a7d3f9147
       Handler: todo.getall.GetAllTodosHandler
       Runtime: java11
       Description: Java function

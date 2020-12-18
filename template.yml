@@ -2,6 +2,20 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: Reproducing the aws lambda webapp reference architecture - a todo app - but with java.
 Resources:
+
+  TodoTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: todo-table
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      SSESpecification:
+        SSEEnabled: true
+
   getAllTodos:
     Type: AWS::Serverless::Function
     Properties:
@@ -10,7 +24,7 @@ Resources:
       Runtime: java11
       Description: Java function
       FunctionName: todo-getall
-      MemorySize: 128
+      MemorySize: 512
       Timeout: 10
       # Function's execution role
       Policies:

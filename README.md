@@ -46,3 +46,4 @@ tests:
 - retourner une liste de tâches en dur, mais récupérée depuis DynamoDB cette fois-ci
 - créer un item
 - supprimer un item (par id)
+- retourner la liste des tâches, depuis une api gateway

@@ -16,6 +16,35 @@ Resources:
       SSESpecification:
         SSEEnabled: true
 
+  TodoApi:
+    Type: AWS::Serverless::Api
+    MethodSettings:
+      DataTraceEnabled: true
+      MetricsEnabled: true
+      HttpMethod: '*'
+      LoggingLevel: INFO
+    AccessLogSetting:
+      DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'
+      Format: '$context.identity.sourceIp $context.authorizer.claims.sub [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.requestId $context.awsEndpointRequestId $context.xrayTraceId $context.responseLatency $context.integrationLatency "$context.error.message"'
+    Properties:
+      Name: TodoApi
+      StageName: prod
+      TracingEnabled: true
+      Cors:
+        AllowOrigin: "'*'"
+        AllowMethods: "'OPTIONS,HEAD,GET,PUT,POST,DELETE'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+#      Auth:
+#        Authorizers:
+#          CognitoAuthorizer:
+#            UserPoolArn: !GetAtt "TodoUserPool.Arn"
+
+  ApiAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/apigateway/AccessLog-${TodoApi}
+      RetentionInDays: 7
+
   getAllTodos:
     Type: AWS::Serverless::Function
     Properties:
@@ -33,6 +62,13 @@ Resources:
         - AWSXrayWriteOnlyAccess
         - AWSLambdaVPCAccessExecutionRole
       Tracing: Active
+      Events:
+        GetItems:
+          Type: Api
+          Properties:
+            Path: /items
+            Method: get
+            RestApiId: !Ref TodoApi
 
   createTodo:
     Type: AWS::Serverless::Function

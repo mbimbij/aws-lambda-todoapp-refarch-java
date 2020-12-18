@@ -15,10 +15,38 @@ Resources:
         WriteCapacityUnits: 5
       SSESpecification:
         SSEEnabled: true
+  TodoApi:
+    Type: AWS::Serverless::Api
+    MethodSettings:
+      DataTraceEnabled: true
+      MetricsEnabled: true
+      HttpMethod: '*'
+      LoggingLevel: INFO
+    AccessLogSetting:
+      DestinationArn:
+        Fn::Sub: arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}
+      Format: $context.identity.sourceIp $context.authorizer.claims.sub [$context.requestTime]
+        "$context.httpMethod $context.resourcePath $context.protocol" $context.status
+        $context.requestId $context.awsEndpointRequestId $context.xrayTraceId $context.responseLatency
+        $context.integrationLatency "$context.error.message"
+    Properties:
+      Name: TodoApi
+      StageName: prod
+      TracingEnabled: true
+      Cors:
+        AllowOrigin: '''*'''
+        AllowMethods: '''OPTIONS,HEAD,GET,PUT,POST,DELETE'''
+        AllowHeaders: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+  ApiAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/apigateway/AccessLog-${TodoApi}
+      RetentionInDays: 7
   getAllTodos:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://acg-devops-joseph/8d60f8ad0e158952d1962656f20c086b
+      CodeUri: s3://acg-devops-joseph/e578931b07a919139ad7983b9789783c
       Handler: todo.getall.GetAllTodosHandler
       Runtime: java11
       Description: Java function
@@ -31,10 +59,18 @@ Resources:
       - AWSXrayWriteOnlyAccess
       - AWSLambdaVPCAccessExecutionRole
       Tracing: Active
+      Events:
+        GetItems:
+          Type: Api
+          Properties:
+            Path: /items
+            Method: get
+            RestApiId:
+              Ref: TodoApi
   createTodo:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://acg-devops-joseph/8d60f8ad0e158952d1962656f20c086b
+      CodeUri: s3://acg-devops-joseph/e578931b07a919139ad7983b9789783c
       Handler: todo.create.CreateTodoHandler
       Runtime: java11
       Description: Java function
@@ -53,7 +89,7 @@ Resources:
   deleteTodo:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://acg-devops-joseph/8d60f8ad0e158952d1962656f20c086b
+      CodeUri: s3://acg-devops-joseph/e578931b07a919139ad7983b9789783c
       Handler: todo.delete.DeleteTodoHandler
       Runtime: java11
       Description: Java function

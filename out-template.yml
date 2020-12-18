@@ -18,7 +18,7 @@ Resources:
   getAllTodos:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://acg-devops-joseph/fd6f3f744fb0b90621dc54a9517c4820
+      CodeUri: s3://acg-devops-joseph/b7405d57381718a8d93269893c096848
       Handler: todo.getall.GetAllTodosHandler
       Runtime: java11
       Description: Java function
@@ -30,4 +30,23 @@ Resources:
       - AWSLambdaReadOnlyAccess
       - AWSXrayWriteOnlyAccess
       - AWSLambdaVPCAccessExecutionRole
+      Tracing: Active
+  createTodo:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://acg-devops-joseph/b7405d57381718a8d93269893c096848
+      Handler: todo.create.CreateTodoHandler
+      Runtime: java11
+      Description: Java function
+      FunctionName: todo-create
+      MemorySize: 512
+      Timeout: 10
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - AWSLambdaReadOnlyAccess
+      - AWSXrayWriteOnlyAccess
+      - AWSLambdaVPCAccessExecutionRole
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: TodoTable
       Tracing: Active

@@ -19,7 +19,7 @@ public class DeleteTodoHandler implements RequestHandler<DeleteTodoRequest, Todo
   @Override
   public TodoDto handleRequest(DeleteTodoRequest deleteRequest, Context context) {
     log.info("delete item {}", deleteRequest.toString());
-    TodoItemEntity entity = TodoItemEntity.createInstanceForDeleteRequest(deleteRequest.id);
+    TodoItemEntity entity = TodoItemEntity.createInstanceForDeleteRequest(deleteRequest.getId());
     todoItemRepository.delete(entity);
     return new TodoDto(entity.getId(), entity.getName(), entity.getState());
   }

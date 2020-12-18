@@ -18,7 +18,7 @@ public class CreateTodoHandler implements RequestHandler<CreateTodoRequest, Todo
 
   @Override
   public TodoDto handleRequest(CreateTodoRequest createRequest, Context context) {
-    TodoItemEntity entity = new TodoItemEntity(createRequest.name, TodoState.TODO.name());
+    TodoItemEntity entity = new TodoItemEntity(createRequest.getName(), TodoState.TODO.name());
     todoItemRepository.save(entity);
     return new TodoDto(entity.getId(), entity.getName(), entity.getState());
   }

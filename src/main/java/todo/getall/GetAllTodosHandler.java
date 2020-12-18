@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class GetAllTodosHandler implements RequestHandler<GetAllTodosRequest, GetAllTodosResponse> {
+public class GetAllTodosHandler implements RequestHandler<Object, GetAllTodosResponse> {
   private TodoItemRepository todoItemRepository;
 
   public GetAllTodosHandler() {
@@ -18,7 +18,7 @@ public class GetAllTodosHandler implements RequestHandler<GetAllTodosRequest, Ge
   }
 
   @Override
-  public GetAllTodosResponse handleRequest(GetAllTodosRequest getAllRequest, Context context) {
+  public GetAllTodosResponse handleRequest(Object getAllRequest, Context context) {
     List<TodoDto> todos = todoItemRepository.findAll().stream()
         .map(entity -> new TodoDto(entity.getId(), entity.getName(), entity.getState()))
         .collect(Collectors.toList());

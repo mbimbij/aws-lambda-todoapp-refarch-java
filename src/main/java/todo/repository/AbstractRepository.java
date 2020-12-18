@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
-public abstract class AbstractRepository<T, ID extends Serializable> {
+public abstract class AbstractRepository<T, K extends Serializable> {
 
   protected DynamoDBMapper mapper;
   protected Class<T> entityClass;
@@ -27,7 +27,7 @@ public abstract class AbstractRepository<T, ID extends Serializable> {
     mapper.save(t);
   }
 
-  public T findOne(ID id) {
+  public T findOne(K id) {
     return mapper.load(entityClass, id);
   }
 

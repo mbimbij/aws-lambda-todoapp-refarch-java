@@ -1,8 +1,10 @@
 package todo.delete;
 
+import lombok.Data;
 import lombok.ToString;
 
 @ToString
+@Data
 public class DeleteTodoRequest {
-  public String id;
+  private String id;
 }

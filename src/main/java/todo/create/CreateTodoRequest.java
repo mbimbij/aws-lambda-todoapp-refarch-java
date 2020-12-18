@@ -1,5 +1,8 @@
 package todo.create;
 
+import lombok.Data;
+
+@Data
 public class CreateTodoRequest {
-  public String name;
+  private String name;
 }

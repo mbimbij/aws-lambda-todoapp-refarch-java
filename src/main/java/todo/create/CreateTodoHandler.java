@@ -10,7 +10,7 @@ import todo.repository.TodoItemRepository;
 
 @Slf4j
 public class CreateTodoHandler implements RequestHandler<CreateTodoRequest, TodoDto> {
-  private TodoItemRepository todoItemRepository;
+  private final TodoItemRepository todoItemRepository;
 
   public CreateTodoHandler() {
     this.todoItemRepository = TodoItemRepository.getInstance();

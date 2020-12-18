@@ -5,10 +5,11 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import todo.config.DynamoDbConfiguration;
 
-public class TodoItemRepository extends AbstractRepository<TodoItemEntity, String> {
+public class TodoItemRepository extends AbstractRepository<TodoItemEntity> {
   private static TodoItemRepository instance;
 
   private TodoItemRepository() {
+    super();
   }
 
   public static TodoItemRepository getInstance(){

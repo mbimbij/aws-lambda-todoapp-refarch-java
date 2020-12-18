@@ -3,14 +3,13 @@ package todo.repository;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 
-import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
-public abstract class AbstractRepository<T, K extends Serializable> {
+public abstract class AbstractRepository<T> {
 
   protected DynamoDBMapper mapper;
-  protected Class<T> entityClass;
+  protected final Class<T> entityClass;
 
   protected AbstractRepository() {
     ParameterizedType genericSuperclass = (ParameterizedType) getClass().getGenericSuperclass();
@@ -25,10 +24,6 @@ public abstract class AbstractRepository<T, K extends Serializable> {
 
   public void save(T t) {
     mapper.save(t);
-  }
-
-  public T findOne(K id) {
-    return mapper.load(entityClass, id);
   }
 
   /**

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class GetAllTodosHandler implements RequestHandler<Object, GetAllTodosResponse> {
-  private TodoItemRepository todoItemRepository;
+  private final TodoItemRepository todoItemRepository;
 
   public GetAllTodosHandler() {
     this.todoItemRepository = TodoItemRepository.getInstance();

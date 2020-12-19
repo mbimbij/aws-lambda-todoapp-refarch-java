@@ -1,5 +1,5 @@
 package todo;
 
 public enum TodoState {
-  TODO
+  TODO, DONE;
 }

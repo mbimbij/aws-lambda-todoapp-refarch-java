@@ -89,6 +89,13 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref TodoTable
       Tracing: Active
+      Events:
+        GetItems:
+          Type: Api
+          Properties:
+            Path: /items
+            Method: post
+            RestApiId: !Ref TodoApi
 
   deleteTodo:
     Type: AWS::Serverless::Function
@@ -109,3 +116,37 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref TodoTable
       Tracing: Active
+      Events:
+        GetItems:
+          Type: Api
+          Properties:
+            Path: /items/{id}
+            Method: DELETE
+            RestApiId: !Ref TodoApi
+
+  completeTodo:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: target/webapp-refarch-todo-java-0.0.1-SNAPSHOT.jar
+      Handler: todo.complete.CompleteTodoHandler
+      Runtime: java11
+      Description: Java function
+      FunctionName: todo-complete
+      MemorySize: 512
+      Timeout: 10
+      # Function's execution role
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambdaReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TodoTable
+      Tracing: Active
+      Events:
+        GetItems:
+          Type: Api
+          Properties:
+            Path: /items/{id}/complete
+            Method: PUT
+            RestApiId: !Ref TodoApi

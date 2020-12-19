@@ -25,7 +25,7 @@ public class TodoItemEntity {
     this.state = state;
   }
 
-  public static TodoItemEntity createInstanceForDeleteRequest(String id) {
+  public static TodoItemEntity createInstanceForDeleteOrUpdateRequest(String id) {
     TodoItemEntity entity = new TodoItemEntity();
     entity.setId(id);
     return entity;

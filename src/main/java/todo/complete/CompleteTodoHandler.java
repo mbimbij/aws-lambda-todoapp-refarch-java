@@ -1,4 +1,4 @@
-package todo.create;
+package todo.complete;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
@@ -8,7 +8,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import todo.GatewayResponse;
 import todo.TodoDto;
-import todo.TodoState;
 import todo.repository.TodoItemEntity;
 import todo.repository.TodoItemRepository;
 
@@ -16,11 +15,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 @Slf4j
-public class CreateTodoHandler implements RequestStreamHandler {
+public class CompleteTodoHandler implements RequestStreamHandler {
   private final TodoItemRepository todoItemRepository;
   private static final ObjectMapper mapper = new ObjectMapper();
 
-  public CreateTodoHandler() {
+  public CompleteTodoHandler() {
     this.todoItemRepository = TodoItemRepository.getInstance();
   }
 
@@ -29,9 +28,8 @@ public class CreateTodoHandler implements RequestStreamHandler {
   public void handleRequest(InputStream input, OutputStream output, Context context) {
     JsonNode jsonNode = mapper.readTree(input);
     log.info("received event {}", jsonNode.toString());
-    CreateTodoRequest request = mapper.readValue(jsonNode.at("/body").textValue(), CreateTodoRequest.class);
-    TodoItemEntity entity = new TodoItemEntity(request.getName(), TodoState.TODO.name());
-    todoItemRepository.save(entity);
-    mapper.writeValue(output, GatewayResponse.createOkResponse(new TodoDto(entity.getId(), entity.getName(), entity.getState())));
+    String id = jsonNode.at("/pathParameters/id").textValue();
+    TodoItemEntity updatedEntity = todoItemRepository.complete(id);
+    mapper.writeValue(output, GatewayResponse.createOkResponse(new TodoDto(updatedEntity.getId(), updatedEntity.getName(), updatedEntity.getState())));
   }
 }

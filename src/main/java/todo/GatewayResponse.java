@@ -25,8 +25,9 @@ public class GatewayResponse<T> {
 
   /**
    * Creates a GatewayResponse object.
-   * @param body body of the response
-   * @param headers headers of the response
+   *
+   * @param body       body of the response
+   * @param headers    headers of the response
    * @param statusCode status code of the response
    */
   @SneakyThrows
@@ -34,5 +35,9 @@ public class GatewayResponse<T> {
     this.statusCode = statusCode;
     this.body = objectMapper.writeValueAsString(body);
     this.headers = Collections.unmodifiableMap(new HashMap<>(headers));
+  }
+
+  public static <T> GatewayResponse<T> createOkResponse(final T body) {
+    return new GatewayResponse<>(body, APPLICATION_JSON, 200);
   }
 }

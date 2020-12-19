@@ -1,11 +1,14 @@
 package todo.repository;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
+@Slf4j
 public abstract class AbstractRepository<T> {
 
   protected DynamoDBMapper mapper;
@@ -23,6 +26,7 @@ public abstract class AbstractRepository<T> {
   }
 
   public void save(T t) {
+    log.info("saving item: {}", t.toString());
     mapper.save(t);
   }
 
@@ -38,7 +42,13 @@ public abstract class AbstractRepository<T> {
   }
 
   public void delete(T t){
+    log.info("deleting item: {}", t.toString());
     mapper.delete(t);
+  }
+
+  public void update(T t){
+    log.info("updating item: {}", t.toString());
+    mapper.save(t, DynamoDBMapperConfig.SaveBehavior.UPDATE_SKIP_NULL_ATTRIBUTES.config());
   }
 
   public void setMapper(DynamoDBMapper dynamoDBMapper) {

@@ -3,6 +3,8 @@ package todo.repository;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
+import todo.TodoState;
 import todo.config.DynamoDbConfiguration;
 
 public class TodoItemRepository extends AbstractRepository<TodoItemEntity> {
@@ -12,8 +14,8 @@ public class TodoItemRepository extends AbstractRepository<TodoItemEntity> {
     super();
   }
 
-  public static TodoItemRepository getInstance(){
-    if(instance == null){
+  public static TodoItemRepository getInstance() {
+    if (instance == null) {
       AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
           .withRegion(DynamoDbConfiguration.REGION.getName())
           .build();
@@ -21,5 +23,12 @@ public class TodoItemRepository extends AbstractRepository<TodoItemEntity> {
       instance.setMapper(new DynamoDBMapper(client));
     }
     return instance;
+  }
+
+  public TodoItemEntity complete(String id) {
+    TodoItemEntity entityToComplete = TodoItemEntity.createInstanceForDeleteOrUpdateRequest(id);
+    entityToComplete.setState(TodoState.DONE.name());
+    instance.update(entityToComplete);
+    return entityToComplete;
   }
 }

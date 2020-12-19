@@ -22,6 +22,8 @@
 
         <maven-shade-plugin.version>3.2.2</maven-shade-plugin.version>
         <aws-lambda-java-log4j2.version>1.2.0</aws-lambda-java-log4j2.version>
+        <junit-jupiter.version>5.7.0</junit-jupiter.version>
+        <assertj.version>3.18.1</assertj.version>
     </properties>
 
     <dependencies>
@@ -62,6 +64,19 @@
             <version>1.11.920</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

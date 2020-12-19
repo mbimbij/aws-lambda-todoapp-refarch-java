@@ -46,4 +46,7 @@ tests:
 - retourner une liste de tâches en dur, mais récupérée depuis DynamoDB cette fois-ci
 - créer un item
 - supprimer un item (par id)
-- retourner la liste des tâches, depuis une api gateway
+- retourner la liste des tâches, depuis l'api gateway
+- créer une tâche, depuis l'api gateway
+- supprimer une tâche par son id, depuis l'api gateway
+- passer à "DONE" le status d'une tâche par son id, depuis l'api gateway

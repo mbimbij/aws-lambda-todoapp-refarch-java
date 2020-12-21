@@ -1,11 +1,8 @@
 package todo.repository;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import todo.TodoState;
-import todo.config.DynamoDbConfiguration;
+import todo.factory.DynamoDbMapperFactory;
 
 public class TodoItemRepository extends AbstractRepository<TodoItemEntity> {
   private static TodoItemRepository instance;
@@ -16,11 +13,9 @@ public class TodoItemRepository extends AbstractRepository<TodoItemEntity> {
 
   public static TodoItemRepository getInstance() {
     if (instance == null) {
-      AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
-          .withRegion(DynamoDbConfiguration.REGION.getName())
-          .build();
+      DynamoDBMapper dynamoDBMapper = DynamoDbMapperFactory.createDynamoDBMapper();
       instance = new TodoItemRepository();
-      instance.setMapper(new DynamoDBMapper(client));
+      instance.setMapper(dynamoDBMapper);
     }
     return instance;
   }

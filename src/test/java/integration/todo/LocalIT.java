@@ -1,4 +1,4 @@
-package integration.todo.create;
+package integration.todo;
 
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
@@ -8,9 +8,9 @@ import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import integration.todo.TestContext;
 import lombok.SneakyThrows;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -26,6 +26,7 @@ import todo.TodoState;
 import todo.config.DynamoDbConfiguration;
 import todo.create.CreateTodoHandler;
 import todo.factory.DynamoDbMapperFactory;
+import todo.repository.TodoItemEntity;
 import todo.repository.TodoItemRepository;
 
 import java.io.ByteArrayInputStream;
@@ -43,7 +44,7 @@ import static org.mockito.Mockito.mockStatic;
 import static todo.config.DynamoDbConfiguration.TABLE_NAME;
 
 @Testcontainers
-public class CreateTodoHandlerIT {
+public class LocalIT {
 
   private static final String DYNAMODB_SERVICE_NAME = "dynamodb_1";
   @Container
@@ -54,26 +55,28 @@ public class CreateTodoHandlerIT {
               Wait
                   .forHttp("/shell")
                   .withStartupTimeout(Duration.ofSeconds(20)));
-  private String SERVICE_ENDPOINT;
-  private CreateTodoHandler handler;
-  private DynamoDbClient dynamoDbClient;
-  private ObjectMapper mapper = new ObjectMapper();
-  private TodoItemRepository repository;
+  private static String SERVICE_ENDPOINT;
+  private static CreateTodoHandler createHandler;
+  private static DynamoDbClient dynamoDbClient;
+  private final ObjectMapper mapper = new ObjectMapper();
+  private static TodoItemRepository repository;
+  private static String correlationId;
 
-  @BeforeEach
-  void setUp() {
+  @BeforeAll
+  public static void setUp() {
     try (MockedStatic<DynamoDbMapperFactory> mocked = mockStatic(DynamoDbMapperFactory.class)) {
       int dynamodbMappedPort = dynamoDbContainer.getServicePort(DYNAMODB_SERVICE_NAME, 8000);
       SERVICE_ENDPOINT = String.format("http://localhost:%d", dynamodbMappedPort);
       mocked.when(DynamoDbMapperFactory::createDynamoDBMapper).thenReturn(createLocalDynamoDBMapper());
-      handler = new CreateTodoHandler();
+      createHandler = new CreateTodoHandler();
       dynamoDbClient = dynamoDbClient();
     }
     createTable();
     repository = TodoItemRepository.getInstance();
+    correlationId = UUID.randomUUID().toString();
   }
 
-  public DynamoDBMapper createLocalDynamoDBMapper() {
+  public static DynamoDBMapper createLocalDynamoDBMapper() {
     AwsClientBuilder.EndpointConfiguration endpointConfig = new AwsClientBuilder.EndpointConfiguration(
         SERVICE_ENDPOINT,
         DynamoDbConfiguration.REGION.getName());
@@ -83,14 +86,14 @@ public class CreateTodoHandlerIT {
     return new DynamoDBMapper(client);
   }
 
-  DynamoDbClient dynamoDbClient() {
+  static DynamoDbClient dynamoDbClient() {
     DynamoDbClientBuilder builder = DynamoDbClient.builder();
     builder.httpClient(ApacheHttpClient.builder().build());
     builder.endpointOverride(URI.create(SERVICE_ENDPOINT));
     return builder.build();
   }
 
-  public void createTable() {
+  public static void createTable() {
     dynamoDbClient.createTable(CreateTableRequest.builder()
         .tableName(TABLE_NAME)
         .keySchema(KeySchemaElement.builder()
@@ -116,12 +119,11 @@ public class CreateTodoHandlerIT {
   void whenCreateItem_thenItemPresentInDynamo_andResponseOK() {
     // GIVEN
     Context context = TestContext.builder().build();
-    String correlationId = UUID.randomUUID().toString();
     String input = String.format("{\"body\":\"{\\\"name\\\":\\\"%s\\\"}\"}", correlationId);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
     // WHEN
-    handler.handleRequest(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)), outputStream, context);
+    createHandler.handleRequest(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)), outputStream, context);
 
     // THEN
     assertThat(repository.findAll()).anyMatch(entity -> Objects.equals(entity.getName(), correlationId));
@@ -139,8 +141,6 @@ public class CreateTodoHandlerIT {
 
     SoftAssertions.assertSoftly(softAssertions -> {
       softAssertions.assertThat(ActualOutputWrapper.asMap())
-//          .usingRecursiveComparison()
-//          .ignoringFields("attributes")
           .containsAllEntriesOf(expectedOutputWrapperWithoutBody.asMap());
       softAssertions.assertThat(actualBody)
           .containsAllEntriesOf(expectedBody);
@@ -149,6 +149,16 @@ public class CreateTodoHandlerIT {
 
   @Test
   void given2ItemsInDynamo_whenGetAllItems_thenAllItemsRetrieved() {
+    // GIVEN
+    TodoItemEntity item1 = new TodoItemEntity("item1",TodoState.TODO.name());
+    TodoItemEntity item2 = new TodoItemEntity("item2",TodoState.DONE.name());
+    repository.save(item1);
+    repository.save(item2);
+
+    String input = "{\"body\":\"{}\"}";
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    // WHEN
 
   }
 }

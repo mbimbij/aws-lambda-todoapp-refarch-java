@@ -46,7 +46,7 @@ Resources:
   getAllTodos:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://acg-devops-joseph/9cfa309c58a11cf0d0828767f1aea4a6
+      CodeUri: s3://acg-devops-joseph/c2f86dc62d17893674cf9bb0ad48edc8
       Handler: todo.getall.GetAllTodosHandler
       Runtime: java11
       Description: Java function
@@ -70,7 +70,7 @@ Resources:
   createTodo:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://acg-devops-joseph/9cfa309c58a11cf0d0828767f1aea4a6
+      CodeUri: s3://acg-devops-joseph/c2f86dc62d17893674cf9bb0ad48edc8
       Handler: todo.create.CreateTodoHandler
       Runtime: java11
       Description: Java function
@@ -97,7 +97,7 @@ Resources:
   deleteTodo:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://acg-devops-joseph/9cfa309c58a11cf0d0828767f1aea4a6
+      CodeUri: s3://acg-devops-joseph/c2f86dc62d17893674cf9bb0ad48edc8
       Handler: todo.delete.DeleteTodoHandler
       Runtime: java11
       Description: Java function
@@ -124,7 +124,7 @@ Resources:
   completeTodo:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://acg-devops-joseph/9cfa309c58a11cf0d0828767f1aea4a6
+      CodeUri: s3://acg-devops-joseph/c2f86dc62d17893674cf9bb0ad48edc8
       Handler: todo.complete.CompleteTodoHandler
       Runtime: java11
       Description: Java function

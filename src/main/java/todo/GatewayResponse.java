@@ -38,6 +38,10 @@ public class GatewayResponse<T> {
   }
 
   public static <T> GatewayResponse<T> createOkResponse(final T body) {
-    return new GatewayResponse<>(body, APPLICATION_JSON, 200);
+    return createOkResponse(body, 200);
+  }
+
+  public static <T> GatewayResponse<T> createOkResponse(final T body, int statusCode) {
+    return new GatewayResponse<>(body, APPLICATION_JSON, statusCode);
   }
 }

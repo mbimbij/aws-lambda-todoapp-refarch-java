@@ -32,6 +32,7 @@ public class CreateTodoHandler implements RequestStreamHandler {
     CreateTodoRequest request = mapper.readValue(jsonNode.at("/body").textValue(), CreateTodoRequest.class);
     TodoItemEntity entity = new TodoItemEntity(request.getName(), TodoState.TODO.name());
     todoItemRepository.save(entity);
-    mapper.writeValue(output, GatewayResponse.createOkResponse(new TodoDto(entity.getId(), entity.getName(), entity.getState())));
+    TodoDto responseBody = new TodoDto(entity.getId(), entity.getName(), entity.getState());
+    mapper.writeValue(output, GatewayResponse.createOkResponse(responseBody, 201));
   }
 }

@@ -29,6 +29,7 @@ import todo.TodoState;
 import todo.complete.CompleteTodoHandler;
 import todo.config.DynamoDbConfiguration;
 import todo.create.CreateTodoHandler;
+import todo.delete.DeleteTodoHandler;
 import todo.factory.DynamoDbMapperFactory;
 import todo.getall.GetAllTodosHandler;
 import todo.repository.TodoItemEntity;
@@ -63,6 +64,7 @@ public class LocalIT {
   private static CreateTodoHandler createTodoHandler;
   private static GetAllTodosHandler getAllTodosHandler;
   private static CompleteTodoHandler completeTodoHandler;
+  private static DeleteTodoHandler deleteTodoHandler;
   private static DynamoDbClient dynamoDbClient;
   private final ObjectMapper mapper = new ObjectMapper();
   private static TodoItemRepository repository;
@@ -83,6 +85,7 @@ public class LocalIT {
       createTodoHandler = new CreateTodoHandler();
       getAllTodosHandler = new GetAllTodosHandler();
       completeTodoHandler = new CompleteTodoHandler();
+      deleteTodoHandler = new DeleteTodoHandler();
       dynamoDbClient = dynamoDbClient();
     }
     createTable();
@@ -206,6 +209,40 @@ public class LocalIT {
     expectedItemInDynano.setId(item.getId());
 
     assertThat(repository.findAll()).contains(expectedItemInDynano);
+
+    // AND
+    Item expectedOutputWrapperWithoutBody = new Item()
+        .withMap("headers", Map.of("Content-Type", "application/json"))
+        .withInt("statusCode", 200);
+
+    Item ActualOutputWrapper = Item.fromJSON(outputStream.toString());
+    Map<String, Object> actualBody = mapper.readValue(ActualOutputWrapper.getString("body"),
+        TypeFactory.defaultInstance()
+            .constructMapType(Map.class, String.class, Object.class));
+
+    SoftAssertions.assertSoftly(softAssertions -> {
+      softAssertions.assertThat(ActualOutputWrapper.asMap())
+          .containsAllEntriesOf(expectedOutputWrapperWithoutBody.asMap());
+      softAssertions.assertThat(actualBody).isNull();
+    });
+  }
+
+  @SneakyThrows
+  @Test
+  void givenSomeInsertedItem_whenCallDeleteHandler_thenItemIsDeleted() {
+    // GIVEN
+    TodoItemEntity item = new TodoItemEntity(correlationId, TodoState.TODO.name());
+    repository.save(item);
+    assertThat(repository.findAll()).contains(item);
+    Map<String, Object> inputMap = Map.of("pathParameters", Map.of("id", item.getId()));
+    String inputString = mapper.writeValueAsString(inputMap);
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    // WHEN
+    deleteTodoHandler.handleRequest(new ByteArrayInputStream(inputString.getBytes(StandardCharsets.UTF_8)), outputStream, context);
+
+    // THEN
+    assertThat(repository.findAll()).doesNotContain(item);
 
     // AND
     Item expectedOutputWrapperWithoutBody = new Item()

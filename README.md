@@ -64,3 +64,4 @@ tests:
     - création d'un item
     - récupération de tous les items
     - définir l'état d'un item comme "terminé"
+    - supprimer un item

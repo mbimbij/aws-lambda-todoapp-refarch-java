@@ -31,6 +31,6 @@ public class DeleteTodoHandler implements RequestStreamHandler {
     String id = jsonNode.at("/pathParameters/id").textValue();
     TodoItemEntity entity = TodoItemEntity.createInstanceForDeleteOrUpdateRequest(id);
     todoItemRepository.delete(entity);
-    mapper.writeValue(output, GatewayResponse.createOkResponse(new TodoDto(entity.getId(), entity.getName(), entity.getState())));
+    mapper.writeValue(output, GatewayResponse.createOkResponse(null));
   }
 }

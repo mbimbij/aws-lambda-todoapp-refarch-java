@@ -26,6 +26,7 @@ import software.amazon.awssdk.services.dynamodb.model.*;
 import todo.GatewayResponse;
 import todo.TodoDto;
 import todo.TodoState;
+import todo.complete.CompleteTodoHandler;
 import todo.config.DynamoDbConfiguration;
 import todo.create.CreateTodoHandler;
 import todo.factory.DynamoDbMapperFactory;
@@ -40,6 +41,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mockStatic;
@@ -60,6 +62,7 @@ public class LocalIT {
   private static String SERVICE_ENDPOINT;
   private static CreateTodoHandler createTodoHandler;
   private static GetAllTodosHandler getAllTodosHandler;
+  private static CompleteTodoHandler completeTodoHandler;
   private static DynamoDbClient dynamoDbClient;
   private final ObjectMapper mapper = new ObjectMapper();
   private static TodoItemRepository repository;
@@ -79,6 +82,7 @@ public class LocalIT {
       mocked.when(DynamoDbMapperFactory::createDynamoDBMapper).thenReturn(createLocalDynamoDBMapper());
       createTodoHandler = new CreateTodoHandler();
       getAllTodosHandler = new GetAllTodosHandler();
+      completeTodoHandler = new CompleteTodoHandler();
       dynamoDbClient = dynamoDbClient();
     }
     createTable();
@@ -182,5 +186,41 @@ public class LocalIT {
     assertThat(actualTodoItems)
         .usingElementComparatorIgnoringFields("id")
         .containsAll(expectedTodoItems);
+  }
+
+  @SneakyThrows
+  @Test
+  void givenAnItemWithStateEqualsTODO_whenCompleteItem_thenItemIsCompletedInDynamo_andResponseIsAsExpected() {
+    // GIVEN
+    TodoItemEntity item = new TodoItemEntity(correlationId, TodoState.TODO.name());
+    repository.save(item);
+    Map<String, Object> inputMap = Map.of("pathParameters", Map.of("id", item.getId()));
+    String inputString = mapper.writeValueAsString(inputMap);
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    // WHEN
+    completeTodoHandler.handleRequest(new ByteArrayInputStream(inputString.getBytes(StandardCharsets.UTF_8)), outputStream, context);
+
+    // THEN
+    TodoItemEntity expectedItemInDynano = new TodoItemEntity(correlationId,TodoState.DONE.name());
+    expectedItemInDynano.setId(item.getId());
+
+    assertThat(repository.findAll()).contains(expectedItemInDynano);
+
+    // AND
+    Item expectedOutputWrapperWithoutBody = new Item()
+        .withMap("headers", Map.of("Content-Type", "application/json"))
+        .withInt("statusCode", 200);
+
+    Item ActualOutputWrapper = Item.fromJSON(outputStream.toString());
+    Map<String, Object> actualBody = mapper.readValue(ActualOutputWrapper.getString("body"),
+        TypeFactory.defaultInstance()
+            .constructMapType(Map.class, String.class, Object.class));
+
+    SoftAssertions.assertSoftly(softAssertions -> {
+      softAssertions.assertThat(ActualOutputWrapper.asMap())
+          .containsAllEntriesOf(expectedOutputWrapperWithoutBody.asMap());
+      softAssertions.assertThat(actualBody).isNull();
+    });
   }
 }

@@ -63,3 +63,4 @@ tests:
 - Phase #2 - ajout de tests automatisés en local
     - création d'un item
     - récupération de tous les items
+    - définir l'état d'un item comme "terminé"

@@ -29,7 +29,7 @@ public class CompleteTodoHandler implements RequestStreamHandler {
     JsonNode jsonNode = mapper.readTree(input);
     log.info("received event {}", jsonNode.toString());
     String id = jsonNode.at("/pathParameters/id").textValue();
-    TodoItemEntity updatedEntity = todoItemRepository.complete(id);
-    mapper.writeValue(output, GatewayResponse.createOkResponse(new TodoDto(updatedEntity.getId(), updatedEntity.getName(), updatedEntity.getState())));
+    todoItemRepository.complete(id);
+    mapper.writeValue(output, GatewayResponse.createOkResponse(null));
   }
 }

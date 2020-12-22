@@ -20,10 +20,9 @@ public class TodoItemRepository extends AbstractRepository<TodoItemEntity> {
     return instance;
   }
 
-  public TodoItemEntity complete(String id) {
+  public void complete(String id) {
     TodoItemEntity entityToComplete = TodoItemEntity.createInstanceForDeleteOrUpdateRequest(id);
     entityToComplete.setState(TodoState.DONE.name());
     instance.update(entityToComplete);
-    return entityToComplete;
   }
 }

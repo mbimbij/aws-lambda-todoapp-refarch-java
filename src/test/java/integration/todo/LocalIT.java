@@ -9,6 +9,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import lombok.SneakyThrows;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,10 +23,13 @@ import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClientBuilder;
 import software.amazon.awssdk.services.dynamodb.model.*;
+import todo.GatewayResponse;
+import todo.TodoDto;
 import todo.TodoState;
 import todo.config.DynamoDbConfiguration;
 import todo.create.CreateTodoHandler;
 import todo.factory.DynamoDbMapperFactory;
+import todo.getall.GetAllTodosHandler;
 import todo.repository.TodoItemEntity;
 import todo.repository.TodoItemRepository;
 
@@ -35,9 +39,7 @@ import java.io.File;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mockStatic;
@@ -56,24 +58,31 @@ public class LocalIT {
                   .forHttp("/shell")
                   .withStartupTimeout(Duration.ofSeconds(20)));
   private static String SERVICE_ENDPOINT;
-  private static CreateTodoHandler createHandler;
+  private static CreateTodoHandler createTodoHandler;
+  private static GetAllTodosHandler getAllTodosHandler;
   private static DynamoDbClient dynamoDbClient;
   private final ObjectMapper mapper = new ObjectMapper();
   private static TodoItemRepository repository;
-  private static String correlationId;
+  private String correlationId;
+  private final Context context = TestContext.builder().build();
+
+  @BeforeEach
+  void setUp() {
+    correlationId = UUID.randomUUID().toString();
+  }
 
   @BeforeAll
-  public static void setUp() {
+  public static void beforeAll() {
     try (MockedStatic<DynamoDbMapperFactory> mocked = mockStatic(DynamoDbMapperFactory.class)) {
       int dynamodbMappedPort = dynamoDbContainer.getServicePort(DYNAMODB_SERVICE_NAME, 8000);
       SERVICE_ENDPOINT = String.format("http://localhost:%d", dynamodbMappedPort);
       mocked.when(DynamoDbMapperFactory::createDynamoDBMapper).thenReturn(createLocalDynamoDBMapper());
-      createHandler = new CreateTodoHandler();
+      createTodoHandler = new CreateTodoHandler();
+      getAllTodosHandler = new GetAllTodosHandler();
       dynamoDbClient = dynamoDbClient();
     }
     createTable();
     repository = TodoItemRepository.getInstance();
-    correlationId = UUID.randomUUID().toString();
   }
 
   public static DynamoDBMapper createLocalDynamoDBMapper() {
@@ -118,12 +127,11 @@ public class LocalIT {
   @Test
   void whenCreateItem_thenItemPresentInDynamo_andResponseOK() {
     // GIVEN
-    Context context = TestContext.builder().build();
     String input = String.format("{\"body\":\"{\\\"name\\\":\\\"%s\\\"}\"}", correlationId);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
     // WHEN
-    createHandler.handleRequest(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)), outputStream, context);
+    createTodoHandler.handleRequest(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)), outputStream, context);
 
     // THEN
     assertThat(repository.findAll()).anyMatch(entity -> Objects.equals(entity.getName(), correlationId));
@@ -147,11 +155,12 @@ public class LocalIT {
     });
   }
 
+  @SneakyThrows
   @Test
   void given2ItemsInDynamo_whenGetAllItems_thenAllItemsRetrieved() {
     // GIVEN
-    TodoItemEntity item1 = new TodoItemEntity("item1",TodoState.TODO.name());
-    TodoItemEntity item2 = new TodoItemEntity("item2",TodoState.DONE.name());
+    TodoItemEntity item1 = new TodoItemEntity("item1", TodoState.TODO.name());
+    TodoItemEntity item2 = new TodoItemEntity("item2", TodoState.DONE.name());
     repository.save(item1);
     repository.save(item2);
 
@@ -159,6 +168,19 @@ public class LocalIT {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
     // WHEN
+    GatewayResponse<List<TodoDto>> actualResponse = getAllTodosHandler.handleRequest(input, context);
 
+    // THEN
+    TodoDto expectedItem1 = new TodoDto("ignored", "item1", TodoState.TODO.name());
+    TodoDto expectedItem2 = new TodoDto("ignored", "item2", TodoState.DONE.name());
+
+    List<TodoDto> actualTodoItems = mapper.readValue(actualResponse.getBody(),
+        TypeFactory.defaultInstance()
+            .constructCollectionType(List.class, TodoDto.class));
+    List<TodoDto> expectedTodoItems = List.of(expectedItem1, expectedItem2);
+
+    assertThat(actualTodoItems)
+        .usingElementComparatorIgnoringFields("id")
+        .containsAll(expectedTodoItems);
   }
 }

@@ -27,7 +27,7 @@
         <testcontainers.version>1.14.3</testcontainers.version>
         <maven-surefire-failsafe-plugin.version>3.0.0-M5</maven-surefire-failsafe-plugin.version>
         <mockito.version>3.6.28</mockito.version>
-        <aws.sdk.version>2.15.50</aws.sdk.version>
+        <aws.sdk.version>2.15.55</aws.sdk.version>
     </properties>
 
     <dependencies>

@@ -46,7 +46,7 @@ Resources:
       RetentionInDays: 7
 
   getAllTodos:
-    Type: AWS::Serverless::Function
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: target/webapp-refarch-todo-java-0.0.1-SNAPSHOT.jar
       Handler: todo.getall.GetAllTodosHandler
@@ -71,7 +71,7 @@ Resources:
             RestApiId: !Ref TodoApi
 
   createTodo:
-    Type: AWS::Serverless::Function
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: target/webapp-refarch-todo-java-0.0.1-SNAPSHOT.jar
       Handler: todo.create.CreateTodoHandler
@@ -98,7 +98,7 @@ Resources:
             RestApiId: !Ref TodoApi
 
   deleteTodo:
-    Type: AWS::Serverless::Function
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: target/webapp-refarch-todo-java-0.0.1-SNAPSHOT.jar
       Handler: todo.delete.DeleteTodoHandler
@@ -125,7 +125,7 @@ Resources:
             RestApiId: !Ref TodoApi
 
   completeTodo:
-    Type: AWS::Serverless::Function
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: target/webapp-refarch-todo-java-0.0.1-SNAPSHOT.jar
       Handler: todo.complete.CompleteTodoHandler

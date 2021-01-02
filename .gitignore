@@ -33,3 +33,4 @@ build/
 .vscode/
 
 sam_user_credentials.csv
+.aws-sam/
